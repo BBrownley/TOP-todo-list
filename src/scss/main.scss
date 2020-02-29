@@ -1,0 +1,92 @@
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    position: relative;
+}
+
+#app {
+    background-color: gray;
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    background-color: rgba($color: #cad8f1, $alpha: 1.0);
+    padding: 20px;
+}
+
+.todos-container {
+    background-color: rgb(184, 201, 158);
+    padding: 20px;
+    flex: 1;
+    .todo {
+        // background-color: cyan;
+        padding: 10px 0;
+    }
+}
+
+.project {
+    background-color: pink;
+    margin-bottom: 2px;
+    padding: 10px;
+    &:hover {
+        cursor: pointer;
+        background-color: white;
+    }
+    &.selected {
+        background-color: rgb(255, 220, 226);
+    }
+}
+
+#add-todo-form-container {
+    display: block;
+}
+
+.form-container {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    background-color: rgba(0,0,0,.4);
+    height: 100%;
+    width: 100%;
+    .form {
+        background-color: white;
+        width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 3px;
+        border: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        .close-form-button {
+            background-color: red;
+            border: 1px solid black;
+            padding: 10px;
+            color: white;
+            width: 100px;
+        }
+        & > *:not(:last-child) {
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            padding: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px;
+        }
+        input[type="number"] {
+            display: inline-block;
+            width: 100px;
+        }
+        #tod
+        .radio-buttons {
+            display: inline-block;
+        }
+    }
+}

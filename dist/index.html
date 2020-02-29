@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="app">
+        <div class="sidebar">
+            <button id="new-project">New Project</button>
+            <button id="add-todo">Add todo</button>
+            <div class="project-container"></div>
+        </div>
+        <div class="todos-container"></div>
+        <div id="new-project-form-container" class="form-container">
+            <form action="#" id="new-project-form" class="form">
+                <button class="close-form-button">Close</button>
+                <label for="projectName">Project name: </label>
+                <input type="text" id="projectName" name="projectName">
+                <input type="submit" value="Create Project">
+            </form>
+        </div>
+        <div id="add-todo-form-container" class="form-container">
+            <form action="#" id="add-todo-form" class="form">
+                <button class="close-form-button">Close</button>
+
+                <label for="todoTitle">Title: </label>
+                <input type="text" id="todoTitle" name="todoTitle">
+
+                <label for="todoDescription">Description: </label>
+                <input type="text" id="todoDescription" name="todoDescription">
+
+                <label for="todoDueDate">Due Date: </label>
+                <input type="date" id="todoDueDate" name="todoDueDate">
+
+                <p>Priority:</p>
+                <div class="radio-buttons" id="priority-radio-buttons">
+                    <input type="radio" id="veryLow" name="priority" value="veryLow">
+                    <label for="veryLow">Very Low</label><br>
+
+                    <input type="radio" id="low" name="priority" value="low">
+                    <label for="low">Low</label><br>
+
+                    <input type="radio" id="normal" name="priority" value="normal" checked>
+                    <label for="normal">Normal</label><br>
+
+                    <input type="radio" id="high" name="priority" value="high">
+                    <label for="high">High</label><br>
+
+                    <input type="radio" id="veryHigh" name="priority" value="veryHigh">
+                    <label for="veryHigh">Very High</label><br>
+                </div>
+
+                <label for="todoEstimatedTime">Estimated Time (Minutes): </label>
+                <input type="number" id="todoEstimatedTime" name="todoEstimatedTime">
+                
+
+                <input type="submit" value="Add todo to project">
+            </form>
+        </div>
+    </div>
+    
+</body>
+<script src="./main.js"></script>
+</html>
