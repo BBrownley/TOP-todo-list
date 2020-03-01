@@ -13,5 +13,8 @@
     "sass-loader": "^8.0.2",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "moment": "^2.24.0"
   }
 }
