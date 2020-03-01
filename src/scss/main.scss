@@ -49,6 +49,11 @@ button {
         &:hover {
             background-color: white;
         }
+        &.expanded {
+            .todo-details {
+                display: block;
+            }
+        }
         .todo-info {
             .todo-title {
                 display: inline-block;
@@ -69,7 +74,16 @@ button {
                     border-radius: 10px;
                     background-color: orange;
                     margin-right: 5px;
+                    border: 1px solid black;
                 }
+            }
+        }
+        .todo-details {
+            display: none;
+            margin-top: 10px;
+            .todo-description {
+                margin-top: 10px;
+                max-width: 500px;
             }
         }
         .todo-options {

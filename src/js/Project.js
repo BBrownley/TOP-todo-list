@@ -11,6 +11,10 @@ class Project {
         this.todos.push(todo);
     }
 
+    deleteTodo(todoIndex) {
+        this.todos.splice(todoIndex, 1);
+    }
+
 };
 
 export default Project;

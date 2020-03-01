@@ -69,28 +69,42 @@ import Todo from "./Todo";
 
 const moment = require("moment");
 
-const projects = [];
-
-const project1 = new Project("My first project");
-project1.addTodo(new Todo("Do homework", "", "", "Low", "3"))
-project1.addTodo(new Todo("Wash the dishes", "", "", "Very Low", "20"))
-project1.addTodo(new Todo("Busy work", "", "", "Very High", "60"))
-
-projects.push(project1);
-
-const project2 = new Project("Another project");
-project2.addTodo(new Todo("Take out trash", "", "", "Medium", "30"))
-project2.addTodo(new Todo("Work out", "", "", "High", "2"))
-
-projects.push(project2);
-
 require("../scss/main.scss");
 
 const dataStorage = (() => {
 
-  
+  const projects = [];
+
+  const project1 = new Project("My first project");
+  project1.addTodo(new Todo("Do homework", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
+  project1.addTodo(new Todo("Wash the dishes", "", "", "Very Low", "20"))
+  project1.addTodo(new Todo("Busy work", "", "", "Very High", "60"))
+
+  projects.push(project1);
+
+  const project2 = new Project("Another project");
+  project2.addTodo(new Todo("Take out trash", "", "", "Normal", "30"))
+  project2.addTodo(new Todo("Work out", "", "", "High", "2"))
+
+  projects.push(project2);
+
+  console.log(projects);
+
+  const addProject = project => projects.push(project);
+
+  const deleteTodo = (projectIndex, todoIndex) => {
+    console.log(projects[0]);
+    projects[projectIndex].deleteTodo(todoIndex);
+    console.log(projects);
+    DOM.renderTodosFromProject(projects[projectIndex], projectIndex);
+    //DOM.removeChildTodoFromProject(todoIndex);
+  }
+
+  return {projects, addProject, deleteTodo};
 
 })();
+
+console.log(dataStorage);
 
 const DOM = (() => {
 
@@ -120,13 +134,20 @@ const DOM = (() => {
 
   }
 
+  const removeChildTodoFromProject = todoIndex => {
+    const todosContainer = document.querySelector(".todos-container");
+    const todoElements = todosContainer.querySelectorAll(".todo");
+
+    todosContainer.removeChild(todoElements[todoIndex]);
+  }
+
   const colorTodoPriority = priority => {
     switch(priority) {
       case "Very Low":
         return "green";
       case "Low":
         return "yellowgreen";
-      case "Medium":
+      case "Normal":
         return "yellow";
       case "High":
         return "orange";
@@ -153,14 +174,22 @@ const DOM = (() => {
     } else {
       project.todos.forEach(todo => {
 
+        console.log(todo)
+
         const todoElement = 
 
         `
           <div class="todo" data-todo-index=${todoIndex} data-child-of-project-at-index=${projectIndex} style="border-left: 5px solid ${colorTodoPriority(todo.priority)}">
             <div class="todo-info">
                 <p class="todo-title">${todo.title}</p>
-                <span class="todo-duration">(${parseInt(todo.estimatedTime)} minutes)</span>
-                <span class="todo-priority"><div class="todo-priority-marker" style="background-color: ${colorTodoPriority(todo.priority)}"></div>${todo.priority} priority</span>
+                <span class="todo-duration">
+                (Est. ${parseInt(todo.estimatedTime)} minutes, 
+                due ${moment(todo.dueDate, "YYYY-DD-MM").format("MM-DD-YYYY")})
+                </span>
+                <div class="todo-details">
+                  <span class="todo-priority"><div class="todo-priority-marker" style="background-color: ${colorTodoPriority(todo.priority)}"></div>${todo.priority} priority</span>
+                  <p class="todo-description">${todo.description}</p>
+                </div>
             </div>
             <div class="todo-options">
                 <button class="edit-todo">Edit</button>
@@ -205,20 +234,23 @@ const DOM = (() => {
 
   const resetForm = form => form.reset();
 
-  const closeForm = () => {
+  const closeForm = e => {
+    if (e) e.preventDefault();
     const allForms = Array.from(document.getElementsByClassName("form-container"));
     allForms.forEach(form =>  {
       form.style.display = "none"
     });
   }
 
-  const showTodoDetails = todoElement => {
+  const toggleTodoDetails = todoElement => {
     console.log(todoElement);
 
 
     // These two variables are essentially "coordinates" for locating the selected todo in data
-    const projectIndex = todoElement.getAttribute("data-child-of-project-at-index");
-    const todoIndex = todoElement.getAttribute("data-todo-index");
+    // const projectIndex = todoElement.getAttribute("data-child-of-project-at-index");
+    // const todoIndex = todoElement.getAttribute("data-todo-index");
+
+    todoElement.classList.toggle("expanded");
 
   }
 
@@ -241,14 +273,13 @@ const DOM = (() => {
     openForm,
     resetForm,
     closeForm,
-    showTodoDetails
+    toggleTodoDetails,
+    removeChildTodoFromProject
   };
 
 })();
 
 const controller = (() => {
-
-  const allProjects = projects;
 
   let selectedProjectIndex = 0;
 
@@ -262,6 +293,7 @@ const controller = (() => {
 
   const getSelectedProjectIndex = () => {
     return Array.from(document.getElementsByClassName("project")).find(project => {
+      console.log(project)
       return project.classList.contains("selected")
     }).getAttribute("data-project-index");
   }
@@ -272,14 +304,14 @@ const controller = (() => {
       const projectIndex = project.getAttribute("data-project-index");
 
       DOM.markSelectedProject(project);
-      DOM.renderTodosFromProject(projects[projectIndex], projectIndex);
+      DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
 
   }
 
   const createProject = (projectName) => {
-    allProjects.push(new Project(projectName));
+    dataStorage.projects.push(new Project(projectName));
     console.log("Project created: " + projectName)
-    DOM.renderProjects(allProjects);
+    DOM.renderProjects(dataStorage.projects);
     DOM.closeForm();
   }
 
@@ -335,15 +367,15 @@ const controller = (() => {
 
       // Get selected project and add the new todo to it
       selectedProjectIndex = getSelectedProjectIndex();
-      allProjects[selectedProjectIndex].addTodo(newTodo);
+      dataStorage.projects[selectedProjectIndex].addTodo(newTodo);
 
       // Close/Reset form, render updated list of todos
       DOM.closeForm();
       DOM.resetForm(form);
-      DOM.renderTodosFromProject(allProjects[selectedProjectIndex], selectedProjectIndex);
+      DOM.renderTodosFromProject(dataStorage.projects[selectedProjectIndex], selectedProjectIndex);
 
       // Updates the count displayed on project tab
-      DOM.renderProjects(allProjects);
+      DOM.renderProjects(dataStorage.projects);
 
     }
 
@@ -384,15 +416,29 @@ const controller = (() => {
 
       selectProject(DOM.checkIfTargetWithinElement(e.target, ".project"));
 
-    } else if (DOM.checkIfTargetWithinElement(e.target, ".todo")) {
-      DOM.showTodoDetails(DOM.checkIfTargetWithinElement(e.target, ".todo"))
+    } 
+
+    else if (e.target.classList.contains("delete-todo")) {
+
+      const todoElementToDelete = DOM.checkIfTargetWithinElement(e.target, ".todo");
+
+      const projectIndexOfTodo = parseInt(todoElementToDelete.getAttribute("data-child-of-project-at-index"));
+      const todoIndex = parseInt(todoElementToDelete.getAttribute("data-todo-index"));
+
+      console.table([projectIndexOfTodo, todoIndex]);
+
+      dataStorage.deleteTodo(projectIndexOfTodo, todoIndex);
+    }
+    
+    else if (DOM.checkIfTargetWithinElement(e.target, ".todo")) {
+      DOM.toggleTodoDetails(DOM.checkIfTargetWithinElement(e.target, ".todo"))
     }
 
   })
 
   window.addEventListener("load", () => {
-    DOM.renderProjects(allProjects);
-    //selectProject(document.querySelector(".project"));
+    DOM.renderProjects(dataStorage.projects);
+    selectProject(document.querySelector(".project"));
     document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-MM-DD");
   })
 
