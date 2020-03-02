@@ -54,7 +54,6 @@ Todo (B) - Displays the following:
 
 -Form validation errors don't disappear after submitting them
 -User can tab over to buttons that are on the z-index baseline while form is open
--Todo counts on project tabs not updating after todo is added
 
 */
 
@@ -190,8 +189,8 @@ const DOM = (() => {
                 </div>
             </div>
             <div class="todo-options">
-                <button class="edit-todo">Edit</button>
-                <button class="delete-todo">Delete</button>
+                <button class="edit-todo"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                <button class="delete-todo"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
             </div>
           </div>
         `
@@ -224,20 +223,33 @@ const DOM = (() => {
 
       projectForm.style.display = "block";
 
-      if (action === "Edit project") {
-
-      }
+      if (action === "New project") {
+        projectForm.reset();
+      } 
 
     } else if (action === "Add todo" || action === "Edit todo") {
       const todoForm = document.getElementById("todo-form-container");
       document.getElementById("todo-form-action-header").textContent = action;
       todoForm.style.display = "block";
+
+      if (action === "Add todo") {
+        todoForm.querySelector("#todo-form").reset();
+      } 
+
     }
   }
 
   const populateTodoFormData = todo => {
+    console.log(todo)
     const todoForm = document.getElementById("todo-form");
-    console.log(todoForm.elements);
+    
+    // These form names are inconsistent :O
+    todoForm.elements["Title"].value = todo.title;
+    todoForm.elements["Description"].value = todo.description;
+    todoForm.elements["priority"].value = todo.priority;
+    todoForm.elements["todoDueDate"].value = todo.dueDate;
+    todoForm.elements["Estimated time"].value = todo.estimatedTime;
+
   }
 
   const resetForm = form => form.reset();
@@ -385,6 +397,7 @@ const controller = (() => {
 
       // Updates the count displayed on project tab
       DOM.renderProjects(dataStorage.projects);
+      DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
 
     }
 
@@ -419,6 +432,8 @@ const controller = (() => {
 
   document.addEventListener("click", e => {
 
+    console.log(e.target);
+
     if (e.target.classList.contains("form-container")) {
       DOM.closeForm();
     }
@@ -438,7 +453,6 @@ const controller = (() => {
 
       DOM.openForm("Edit todo");
       DOM.populateTodoFormData(dataStorage.getTodoObject(projectIndexOfTodo, todoIndex));
-      
       
     }
 
@@ -461,6 +475,7 @@ const controller = (() => {
   })
 
   window.addEventListener("load", () => {
+    if (testingUI) return;
     DOM.renderProjects(dataStorage.projects);
     selectProject(document.querySelector(".project"));
     document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-MM-DD");
@@ -469,3 +484,5 @@ const controller = (() => {
   return {submitForm}
 
 })();
+
+const testingUI = false;

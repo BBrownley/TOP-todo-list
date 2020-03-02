@@ -61,6 +61,7 @@ button {
         .todo-info {
             .todo-title {
                 display: inline-block;
+                font-size: 20px;
             }
             .todo-duration {
                 color: gray;
@@ -91,13 +92,29 @@ button {
             }
         }
         .todo-options {
+
+            align-self: flex-start;
+
+            button {
+                width: 40px;
+                border: none;
+                font-size: 30px;
+                &:focus {
+                    outline: none;
+                }
+                i {
+                    pointer-events: none;
+                }
+            }
             
             .edit-todo {
-                background-color: rgb(87, 171, 255);
+                // background-color: #6f779b;
+                color: black;
+                background-color: none;
             }
             .delete-todo {
-                background-color: red;
-                color: white;
+                // background-color: rgb(133, 32, 32);
+                color: red;
             }
         }
     }
