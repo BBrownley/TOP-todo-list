@@ -50,12 +50,6 @@ Todo (B) - Displays the following:
 
 // NOTES
 
--User clicks on todo
--Box appears on screen, listing all its details
-
--User clicks delete on todo
--Todo is removed from the project
-
 // BUGS
 
 -Form validation errors don't disappear after submitting them
@@ -100,7 +94,11 @@ const dataStorage = (() => {
     //DOM.removeChildTodoFromProject(todoIndex);
   }
 
-  return {projects, addProject, deleteTodo};
+  const getTodoObject = (projectIndex, todoIndex) => {
+    return projects[projectIndex].todos[todoIndex];
+  }
+
+  return {projects, addProject, deleteTodo, getTodoObject};
 
 })();
 
@@ -218,18 +216,28 @@ const DOM = (() => {
   }
 
   const openForm = action => {
-    switch(action) {
-      case "New Project":
-        const newProjectForm = document.getElementById("new-project-form-container");
-        newProjectForm.style.display = "block";
-        break;
-      case "Add todo":
-        const addTodoForm = document.getElementById("add-todo-form-container");
-        addTodoForm.style.display = "block";
-        break;
-      default:
-        break;
+
+    if (action === "New project" || action === "Edit project") {
+      
+      const projectForm = document.getElementById("project-form-container");
+      document.getElementById("project-form-action-header").textContent = action;
+
+      projectForm.style.display = "block";
+
+      if (action === "Edit project") {
+
+      }
+
+    } else if (action === "Add todo" || action === "Edit todo") {
+      const todoForm = document.getElementById("todo-form-container");
+      document.getElementById("todo-form-action-header").textContent = action;
+      todoForm.style.display = "block";
     }
+  }
+
+  const populateTodoFormData = todo => {
+    const todoForm = document.getElementById("todo-form");
+    console.log(todoForm.elements);
   }
 
   const resetForm = form => form.reset();
@@ -274,7 +282,8 @@ const DOM = (() => {
     resetForm,
     closeForm,
     toggleTodoDetails,
-    removeChildTodoFromProject
+    removeChildTodoFromProject,
+    populateTodoFormData
   };
 
 })();
@@ -319,7 +328,7 @@ const controller = (() => {
   const newProjectButton = document.getElementById("new-project");
 
   newProjectButton.addEventListener("click", () => {
-    DOM.openForm("New Project");
+    DOM.openForm("New project");
   })
 
   const addTodoButton = document.getElementById("add-todo");
@@ -348,12 +357,12 @@ const controller = (() => {
     }
 
     // Extract values from form
-    if (form.getAttribute("id") === "new-project-form") {
+    if (form.getAttribute("id") === "project-form") {
       const newProjectName = document.getElementById("projectName").value;
       createProject(newProjectName);
       selectProject(document.querySelector(".project:last-child"));
       DOM.resetForm(form);
-    } else if (form.getAttribute("id") === "add-todo-form") {
+    } else if (form.getAttribute("id") === "todo-form") {
 
       const todoProperties = [];
 
@@ -406,6 +415,8 @@ const controller = (() => {
 
   }
 
+  
+
   document.addEventListener("click", e => {
 
     if (e.target.classList.contains("form-container")) {
@@ -417,6 +428,19 @@ const controller = (() => {
       selectProject(DOM.checkIfTargetWithinElement(e.target, ".project"));
 
     } 
+
+    else if (e.target.classList.contains("edit-todo")) {
+      
+      const todoElementToEdit = DOM.checkIfTargetWithinElement(e.target, ".todo");
+
+      const projectIndexOfTodo = parseInt(todoElementToEdit.getAttribute("data-child-of-project-at-index"));
+      const todoIndex = parseInt(todoElementToEdit.getAttribute("data-todo-index"));
+
+      DOM.openForm("Edit todo");
+      DOM.populateTodoFormData(dataStorage.getTodoObject(projectIndexOfTodo, todoIndex));
+      
+      
+    }
 
     else if (e.target.classList.contains("delete-todo")) {
 

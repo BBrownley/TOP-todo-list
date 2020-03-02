@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
     <title>Document</title>
 </head>
 <body>
@@ -13,7 +15,30 @@
             <button id="new-project">New Project</button>
             <button id="add-todo">Add todo</button>
             
-            <div class="project-container"></div>
+            <h3>Projects</h3>
+            <div class="project-container">
+                <div class="project selected">
+                    <div>
+                        <span class="project-name">Hello</span>
+                        <span class="project-count">3</span>
+                        <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+                <div class="project">
+                        <div>
+                            <span class="project-name">Hello</span>
+                            <span class="project-count">3</span>
+                            <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                    <div class="project">
+                            <div>
+                                <span class="project-name">Hello</span>
+                                <span class="project-count">3</span>
+                                <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
+                            </div>
+                        </div>
+            </div>
         </div>
         <div class="todos-container">
             
@@ -30,9 +55,10 @@
             </div>
             
         </div>
-        <div id="new-project-form-container" class="form-container">
-            <form action="#" id="new-project-form" class="form">
+        <div id="project-form-container" class="form-container">
+            <form action="#" id="project-form" class="form">
                 <button class="close-form-button">Close</button>
+                <h2 id="project-form-action-header"></h2>
                 <label for="Project name">Project name: </label>
                 <input type="text" id="projectName" name="Project name">
 
@@ -42,9 +68,11 @@
             </form>
             <div class="form-errors"></div>
         </div>
-        <div id="add-todo-form-container" class="form-container">
-            <form action="#" id="add-todo-form" class="form">
+        <div id="todo-form-container" class="form-container">
+            <form action="#" id="todo-form" class="form">
                 <button class="close-form-button">Close</button>
+
+                <h2 id="todo-form-action-header"></h2>
 
                 <label for="Title">Title: </label>
                 <input type="text" id="todoTitle" name="Title">
@@ -82,6 +110,7 @@
             </form>
             
         </div>
+
     </div>
     
 </body>

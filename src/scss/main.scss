@@ -8,6 +8,7 @@
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     position: relative;
+    font-family: 'Montserrat', ;
 }
 
 #app {
@@ -22,14 +23,17 @@ button {
     font-size: 20px;
     border: 1px solid black;
     border-radius: 3px;
+    font-family: Arial, Helvetica, sans-serif;
     &:hover {
         cursor: pointer;
     }
 }
 
 .sidebar {
-    background-color: rgba($color: #cad8f1, $alpha: 1.0);
-    padding: 20px;
+    // background-color: rgba($color: #cad8f1, $alpha: 1.0);
+    background-color: #36373F;
+    // border-right: 2px solid black;
+    box-shadow: 2px 2px 2px gray;
 }
 
 .todos-container {
@@ -99,21 +103,41 @@ button {
     }
 }
 
-.project {
-    background-color: pink;
-    margin-bottom: 2px;
-    padding: 10px;
-    &:hover {
-        cursor: pointer;
-        background-color: white;
-    }
-    &.selected {
-        background-color: rgb(255, 220, 226);
+.project-container {
+    margin-top: 20px;
+    .project {
+        padding: 10px;
+        color: rgb(122, 122, 122);
+        &:hover {
+            cursor: pointer;
+            background-color: lighten(#36373F, 5%);
+            .project-edit {
+                display: inline-block;
+                color: #bbb;
+                &:hover {
+                    color: #eee;
+                }
+            }
+        }
+        &.selected {
+            background-color: #43454E;
+            border-left: 5px solid #D4DAF1;
+            color: #DFE3FC;
+        }
+        .project-edit {
+            display: none;
+            float: right;
+        }
     }
 }
 
+
 #add-todo-form-container {
     display: none;
+}
+
+#edit-todo-form-container {
+    display: block;
 }
 
 .form-container {
