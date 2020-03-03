@@ -12,40 +12,96 @@ body {
 }
 
 #app {
-    background-color: rgb(243, 243, 243);
+    background-color: rgb(209, 209, 209);
     display: flex;
     height: 100vh;
 }
 
 button {
-    background-color: white;
+    background-color: transparent;
     padding: 5px;
     font-size: 20px;
-    border: 1px solid black;
-    border-radius: 3px;
+    border: none;
     font-family: Arial, Helvetica, sans-serif;
     &:hover {
         cursor: pointer;
     }
 }
 
+.nav {
+    // background-color: green;
+    padding: 5px 0 0 10px;
+    ul li {
+        // border: 1px solid black;
+        padding: 5px 0;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    &-thumb {
+        background: #36373F;
+        border-radius: 0px;
+    }
+}
+
+.projects-header {
+    width: 100%;
+    padding: 5px 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: default;
+    #new-project {
+        border: none;
+        color: rgb(200,200,200);
+        &:hover {
+            color: white;
+        }
+    }
+}
+
 .sidebar {
+    width: 200px;
     // background-color: rgba($color: #cad8f1, $alpha: 1.0);
     background-color: #36373F;
     // border-right: 2px solid black;
     box-shadow: 2px 2px 2px gray;
+    color: white;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    &::-webkit-scrollbar {
+        width: 10px;
+        &-thumb {
+            background: #D4DAF1;
+            border-radius: 0px;
+        }
+    }
 }
 
 .todos-container {
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
     padding: 20px;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    #add-todo {
+        padding: 10px;
+        align-self: center;
+        background-color: #36373F;
+        color: white;
+        border-radius: 100px;
+    }
     .todo {
         background-color: rgb(250,250,250);
         border-left: 7px solid orange;
-        box-shadow: 2px 2px 2px #aaa;
+        box-shadow: 2px 2px 3px #aaa;
         padding: 10px;
         margin-bottom: 10px;
+        // min-width: 500px;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
@@ -56,6 +112,9 @@ button {
         &.expanded {
             .todo-details {
                 display: block;
+            }
+            .todo-info {
+                padding-top: 10px;
             }
         }
         .todo-info {
@@ -99,6 +158,7 @@ button {
                 width: 40px;
                 border: none;
                 font-size: 30px;
+                color: #ddd;
                 &:focus {
                     outline: none;
                 }
@@ -108,11 +168,14 @@ button {
             }
             
             .edit-todo {
-                // background-color: #6f779b;
-                color: black;
-                background-color: none;
+                position: relative;
+                top: 2px;
+                color: #ddd;
+                &:hover {
+                    color: #555;
+                }
             }
-            .delete-todo {
+            .delete-todo:hover {
                 // background-color: rgb(133, 32, 32);
                 color: red;
             }
@@ -121,9 +184,11 @@ button {
 }
 
 .project-container {
-    margin-top: 20px;
+    margin-top: 5px;
+    width: 100%;
     .project {
-        padding: 10px;
+        padding: 10px 0 10px 10px;
+        width: 100%;
         color: rgb(122, 122, 122);
         &:hover {
             cursor: pointer;
@@ -141,6 +206,16 @@ button {
             border-left: 5px solid #D4DAF1;
             color: #DFE3FC;
         }
+        .project-count {
+            font-size: 12px;
+            margin-left: 2px;
+            &:before {
+                content: "(";
+            }
+            &:after {
+                content: ")";
+            }
+        }
         .project-edit {
             display: none;
             float: right;
@@ -148,17 +223,12 @@ button {
     }
 }
 
-
-#add-todo-form-container {
-    display: none;
-}
-
 #edit-todo-form-container {
     display: block;
 }
 
 .form-container {
-    display: none;
+    // display: none;
     position: fixed;
     z-index: 100;
     background-color: rgba(0,0,0,.4);

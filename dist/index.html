@@ -12,102 +12,22 @@
 
     <div id="app">
         <div class="sidebar">
-            <button id="new-project">New Project</button>
-            <button id="add-todo">Add todo</button>
             
-            <h3>Projects</h3>
-            <div class="project-container">
-                <div class="project selected">
-                    <div>
-                        <span class="project-name">Hello</span>
-                        <span class="project-count">3</span>
-                        <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
-                    </div>
-                </div>
-                <div class="project">
-                        <div>
-                            <span class="project-name">Hello</span>
-                            <span class="project-count">3</span>
-                            <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
-                        </div>
-                    </div>
-                    <div class="project">
-                            <div>
-                                <span class="project-name">Hello</span>
-                                <span class="project-count">3</span>
-                                <span class="project-edit"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
-                            </div>
-                        </div>
+            <nav class="nav">
+                <ul>
+                    <li><i class="fa fa-calendar-check-o" aria-hidden="true"></i> Today</li>
+                    <li><i class="fa fa-calendar" aria-hidden="true"></i> This week</li>
+                    <li><i class="fa fa-random"></i> Random todo</li>
+                </ul>
+            </nav>
+            
+            <div class="projects-header">
+                <span>Projects</span>
+                <button id="new-project">+</button>
             </div>
+            <div class="project-container"></div>
         </div>
-        <div class="todos-container">
-            
-            <div class="todo">
-                <div class="todo-info">
-                    <p class="todo-title">Walk dog</p>
-                    <span class="todo-duration">(12 minutes)</span>
-                    <span class="todo-priority"><div class="todo-priority-marker"></div>High priority</span>
-                </div>
-                <div class="todo-options">
-                    <button class="edit-todo"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                    <button class="delete-todo"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                </div>
-            </div>
-            
-        </div>
-        <div id="project-form-container" class="form-container">
-            <form action="#" id="project-form" class="form">
-                <button class="close-form-button">Close</button>
-                <h2 id="project-form-action-header"></h2>
-                <label for="Project name">Project name: </label>
-                <input type="text" id="projectName" name="Project name">
-
-                <div class="form-errors"></div>
-                <input type="submit" value="Create Project">
-
-            </form>
-            <div class="form-errors"></div>
-        </div>
-        <div id="todo-form-container" class="form-container">
-            <form action="#" id="todo-form" class="form">
-                <button class="close-form-button">Close</button>
-
-                <h2 id="todo-form-action-header"></h2>
-
-                <label for="Title">Title: </label>
-                <input type="text" id="todoTitle" name="Title">
-
-                <label for="Description">Description: </label>
-                <input type="text" id="todoDescription" name="Description">
-
-                <label for="todoDueDate">Due Date: </label>
-                <input type="date" id="todoDueDate" name="todoDueDate">
-
-                <p>Priority:</p>
-                <div class="radio-buttons" id="priority-radio-buttons">
-                    <input type="radio" id="veryLow" name="priority" value="Very Low">
-                    <label for="veryLow">Very Low</label><br>
-
-                    <input type="radio" id="low" name="priority" value="Low">
-                    <label for="low">Low</label><br>
-
-                    <input type="radio" id="normal" name="priority" value="Normal" checked>
-                    <label for="normal">Normal</label><br>
-
-                    <input type="radio" id="high" name="priority" value="High">
-                    <label for="high">High</label><br>
-
-                    <input type="radio" id="veryHigh" name="priority" value="Very High">
-                    <label for="veryHigh">Very High</label><br>
-                </div>
-
-                <label for="Estimated time">Estimated Time (Minutes): </label>
-                <input type="number" id="todoEstimatedTime" name="Estimated time">
-
-                <div class="form-errors"></div>
-                
-                <input type="submit" value="Add todo to project">
-            </form>
+        <div class="todos-container"><button id="add-todo">+ Add todo</button></div>
             
         </div>
 

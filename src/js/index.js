@@ -52,13 +52,15 @@ Todo (B) - Displays the following:
 
 // BUGS
 
--Form validation errors don't disappear after submitting them
 -User can tab over to buttons that are on the z-index baseline while form is open
 
 */
 
 import Project from "./Project";
 import Todo from "./Todo";
+
+import projectForm from '../modules/projectForm.js';
+import todoForm from '../modules/todoForm';
 
 const moment = require("moment");
 
@@ -81,14 +83,13 @@ const dataStorage = (() => {
 
   projects.push(project2);
 
-  console.log(projects);
 
   const addProject = project => projects.push(project);
 
   const deleteTodo = (projectIndex, todoIndex) => {
-    console.log(projects[0]);
+
     projects[projectIndex].deleteTodo(todoIndex);
-    console.log(projects);
+
     DOM.renderTodosFromProject(projects[projectIndex], projectIndex);
     //DOM.removeChildTodoFromProject(todoIndex);
   }
@@ -100,8 +101,6 @@ const dataStorage = (() => {
   return {projects, addProject, deleteTodo, getTodoObject};
 
 })();
-
-console.log(dataStorage);
 
 const DOM = (() => {
 
@@ -171,8 +170,6 @@ const DOM = (() => {
     } else {
       project.todos.forEach(todo => {
 
-        console.log(todo)
-
         const todoElement = 
 
         `
@@ -200,6 +197,11 @@ const DOM = (() => {
       })
     }
 
+    todosContainer.innerHTML += `<button id="add-todo">+ Add todo</button>`;
+
+    const addTodoButton = document.getElementById("add-todo");
+    addTodoButton.addEventListener("click", () => openForm("Add todo"));
+
   }
 
   const markSelectedProject = targetProjectElement => {
@@ -214,33 +216,60 @@ const DOM = (() => {
     return target.closest(selector);
   }
 
+  const addFormEventListeners = () => {
+
+    console.log("heyu")
+    const submitButton = document.querySelector('input[type="submit"]');
+    console.log(submitButton);
+    submitButton.addEventListener("click", e => {
+      e.preventDefault();
+      console.log("Added form event listeners")
+    })
+  }
+
   const openForm = action => {
 
     if (action === "New project" || action === "Edit project") {
+
+      const formContainer = document.createElement("div");
+      formContainer.classList.add("form-container");
+
+      formContainer.innerHTML = projectForm(action);
+      document.getElementById("app").appendChild(formContainer);
       
-      const projectForm = document.getElementById("project-form-container");
-      document.getElementById("project-form-action-header").textContent = action;
+      document.querySelector('input[type="submit"]').addEventListener("click", e => {
 
-      projectForm.style.display = "block";
-
-      if (action === "New project") {
-        projectForm.reset();
-      } 
+        e.preventDefault();
+        controller.submitForm(formContainer);
+      });
 
     } else if (action === "Add todo" || action === "Edit todo") {
-      const todoForm = document.getElementById("todo-form-container");
-      document.getElementById("todo-form-action-header").textContent = action;
-      todoForm.style.display = "block";
+
+      const formContainer = document.createElement("div");
+      formContainer.classList.add("form-container");
+
+      formContainer.innerHTML = todoForm(action);
+      document.getElementById("app").appendChild(formContainer);
+
+      console.log(document.querySelector('input[type="submit"]'));
+      
+      document.querySelector('input[type="submit"]').addEventListener("click", e => {
+        e.preventDefault();
+        controller.submitForm(formContainer);
+      });
 
       if (action === "Add todo") {
-        todoForm.querySelector("#todo-form").reset();
-      } 
+        formContainer.querySelector("#todo-form").reset();
+        document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-DD-MM");
+      } else {
+        return;
+      }
 
     }
   }
 
   const populateTodoFormData = todo => {
-    console.log(todo)
+
     const todoForm = document.getElementById("todo-form");
     
     // These form names are inconsistent :O
@@ -258,17 +287,11 @@ const DOM = (() => {
     if (e) e.preventDefault();
     const allForms = Array.from(document.getElementsByClassName("form-container"));
     allForms.forEach(form =>  {
-      form.style.display = "none"
+      form.remove();
     });
   }
 
   const toggleTodoDetails = todoElement => {
-    console.log(todoElement);
-
-
-    // These two variables are essentially "coordinates" for locating the selected todo in data
-    // const projectIndex = todoElement.getAttribute("data-child-of-project-at-index");
-    // const todoIndex = todoElement.getAttribute("data-todo-index");
 
     todoElement.classList.toggle("expanded");
 
@@ -278,7 +301,6 @@ const DOM = (() => {
   closeFormButtons.forEach(button => button.addEventListener("click", closeForm));
 
   const formSubmitButtons = Array.from(document.querySelectorAll(`input[type="submit"]`));
-  console.log(formSubmitButtons);
 
   formSubmitButtons.forEach(button => button.addEventListener("click", e => {
     e.preventDefault();
@@ -304,6 +326,9 @@ const controller = (() => {
 
   let selectedProjectIndex = 0;
 
+  let projectIndexOfTodoBeingEdited;
+  let editedTodoIndex;
+
   const updateProject = () => {
 
   }
@@ -314,7 +339,6 @@ const controller = (() => {
 
   const getSelectedProjectIndex = () => {
     return Array.from(document.getElementsByClassName("project")).find(project => {
-      console.log(project)
       return project.classList.contains("selected")
     }).getAttribute("data-project-index");
   }
@@ -331,30 +355,22 @@ const controller = (() => {
 
   const createProject = (projectName) => {
     dataStorage.projects.push(new Project(projectName));
-    console.log("Project created: " + projectName)
     DOM.renderProjects(dataStorage.projects);
     DOM.closeForm();
   }
 
-  // ¯\_(ツ)_/¯
+
   const newProjectButton = document.getElementById("new-project");
 
-  newProjectButton.addEventListener("click", () => {
-    DOM.openForm("New project");
-  })
+  const submitForm = formContainer => {
 
-  const addTodoButton = document.getElementById("add-todo");
-
-  addTodoButton.addEventListener("click", () => {
-    DOM.openForm("Add todo");
-  })
-  // ¯\_(ツ)_/¯
-
-  const submitForm = form => {
+    const form = formContainer.querySelector("form");
 
     const formValidationErrors = validateForm(form);
 
     if (formValidationErrors.length > 0) {
+
+      console.log(form)
 
       const formErrorContainer = form.querySelector(".form-errors");
       formErrorContainer.innerHTML = "";
@@ -368,13 +384,16 @@ const controller = (() => {
       return;
     }
 
+    console.log("hey im a project form")
+
     // Extract values from form
     if (form.getAttribute("id") === "project-form") {
+      
       const newProjectName = document.getElementById("projectName").value;
       createProject(newProjectName);
       selectProject(document.querySelector(".project:last-child"));
       DOM.resetForm(form);
-    } else if (form.getAttribute("id") === "todo-form") {
+    } else if (form.getAttribute("data-form-action") === "Add todo") {
 
       const todoProperties = [];
 
@@ -399,16 +418,35 @@ const controller = (() => {
       DOM.renderProjects(dataStorage.projects);
       DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
 
+    } else if (form.getAttribute("data-form-action") === "Edit todo") {
+      console.log(dataStorage.projects[projectIndexOfTodoBeingEdited].todos[editedTodoIndex])
+
+      dataStorage.projects[projectIndexOfTodoBeingEdited].todos[editedTodoIndex] = new Todo(
+        form["todoTitle"].value,
+        form["todoDescription"].value,
+        form["todoDueDate"].value,
+        document.querySelector(`input[name="priority"]:checked`).value,
+        form["todoEstimatedTime"].value
+      )
+
+        // Close/Reset form, render updated list of todos
+        DOM.closeForm();
+        DOM.resetForm(form);
+        DOM.renderTodosFromProject(dataStorage.projects[selectedProjectIndex], selectedProjectIndex);
+
+        // Updates the count displayed on project tab
+        DOM.renderProjects(dataStorage.projects);
+        DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+      }
+      
     }
 
-  }
+  
 
-  // form - Represents the HTML form
+  // formContainer - Represents the wrapper around the HTML form
   const validateForm = form => {
     
     const errors = [];
-
-    console.log(form.elements)
 
     const formInputsToValidate = Array.from(form.elements).filter(formElement => {
       return formElement.type === "text" || formElement.type === "number";
@@ -432,9 +470,19 @@ const controller = (() => {
 
   document.addEventListener("click", e => {
 
+    // My personal rule of thumb is "the nearest static container is where I want to listen." - snowmonkey
+
     console.log(e.target);
 
-    if (e.target.classList.contains("form-container")) {
+    if (e.target.getAttribute("id") === "new-project") {
+      DOM.openForm("New project");
+    }
+
+    // else if (e.target.getAttribute("id") === "add-todo") {
+    //   DOM.openForm("Add todo")
+    // }
+
+    else if (e.target.classList.contains("form-container")) {
       DOM.closeForm();
     }
 
@@ -448,11 +496,11 @@ const controller = (() => {
       
       const todoElementToEdit = DOM.checkIfTargetWithinElement(e.target, ".todo");
 
-      const projectIndexOfTodo = parseInt(todoElementToEdit.getAttribute("data-child-of-project-at-index"));
-      const todoIndex = parseInt(todoElementToEdit.getAttribute("data-todo-index"));
+      projectIndexOfTodoBeingEdited = parseInt(todoElementToEdit.getAttribute("data-child-of-project-at-index"));
+      editedTodoIndex = parseInt(todoElementToEdit.getAttribute("data-todo-index"));
 
       DOM.openForm("Edit todo");
-      DOM.populateTodoFormData(dataStorage.getTodoObject(projectIndexOfTodo, todoIndex));
+      DOM.populateTodoFormData(dataStorage.getTodoObject(projectIndexOfTodoBeingEdited, editedTodoIndex));
       
     }
 
@@ -478,11 +526,16 @@ const controller = (() => {
     if (testingUI) return;
     DOM.renderProjects(dataStorage.projects);
     selectProject(document.querySelector(".project"));
-    document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-MM-DD");
+    
+    // document.getElementById("todoDueDate").value = "2014-02-09"
+    console.log(moment(new Date()).add(1, "days").format("MM-DD-YYYY"));
+    // console.log(document.getElementById("todoDueDate").value);
   })
 
-  return {submitForm}
+  return {submitForm, newProjectButton}
 
 })();
+
+
 
 const testingUI = false;

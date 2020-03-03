@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  devtool: "eval-cheap-source-map",
   entry: './src/js/index.js',
   output: {
     filename: 'main.js',
