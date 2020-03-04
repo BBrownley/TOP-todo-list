@@ -195,12 +195,14 @@ const DOM = (() => {
 
       project.todos.forEach(todo => {
 
+        console.log(todo.completed);
+
         const todoElement = 
 
         `
           <div class="todo" data-todo-index=${todoIndex} data-child-of-project-at-index=${projectIndex} style="border-left: 5px solid ${colorTodoPriority(todo.priority)}">
             <div class="todo-info">
-                <p class="todo-title">${todo.title}</p>
+                <p class="todo-title ${todo.completed ? "crossed-off" : ""}">${todo.title}</p>
                 <span class="todo-duration">
                 (Est. ${parseInt(todo.estimatedTime)} minutes, 
                 due ${moment(todo.dueDate, "YYYY-DD-MM").format("MM-DD-YYYY")})
@@ -211,8 +213,9 @@ const DOM = (() => {
                 </div>
             </div>
             <div class="todo-options">
-                <button class="edit-todo"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                <button class="delete-todo"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+              <button class="check-todo"><i class="fa fa-check-circle-o" aria-hidden="true"></i></button>
+              <button class="edit-todo"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+              <button class="delete-todo"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
             </div>
           </div>
         `
@@ -536,6 +539,21 @@ const controller = (() => {
 
       DOM.openForm("Edit project");
       DOM.populateProjectFormData(dataStorage.projects[parseInt(e.target.parentNode.parentNode.getAttribute("data-project-index"))]);
+
+    }
+
+    else if (e.target.classList.contains("check-todo")) {
+      console.log("Checking off project");
+
+      const projectElementToCheck = e.target.parentNode.parentNode;
+
+      const projectIndex = projectElementToCheck.getAttribute("data-child-of-project-at-index");
+      const todoIndex = projectElementToCheck.getAttribute("data-todo-index");
+
+      const todoToToggleCompleted = dataStorage.projects[projectIndex].todos[todoIndex];
+
+      todoToToggleCompleted.completed = !todoToToggleCompleted.completed;
+      DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
 
     }
 

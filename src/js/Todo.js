@@ -9,6 +9,7 @@ class Todo {
         this.dueDate = dueDate;
         this.priority = priority;
         this.estimatedTime = estTime;
+        this.completed = false;
     }
 
     
