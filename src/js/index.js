@@ -52,11 +52,12 @@ Todo (B) - Displays the following:
 
 // BUGS
 
--User can tab over to buttons that are on the z-index baseline while form is open
+-User can tab over to buttons that are on the z-index baseline while form is open (post MVP)
+-If user deletes their last project, the app breaks
 
-// TO DO
+// TO DO (heh)
 
-
+-Implement localStorage
 
 */
 
@@ -89,6 +90,12 @@ const dataStorage = (() => {
 
   projects.push(project2);
 
+  const project3 = new Project("Anotha one");
+  project3.addTodo(new Todo("Task 1", "", "", "Normal", "30"))
+  project3.addTodo(new Todo("Task 2", "", "", "High", "2"))
+
+  projects.push(project3);
+
 
   const addProject = project => projects.push(project);
 
@@ -101,11 +108,9 @@ const dataStorage = (() => {
   }
 
   const deleteProject = projectIndex => {
-    console.log(projects);
-    console.log(projectIndex);
     projects.splice(projectIndex, 1);
     DOM.renderProjects(projects);
-    console.log(projects);
+    console.log(projects.length === 0);
   }
 
   const getTodoObject = (projectIndex, todoIndex) => {
@@ -225,12 +230,17 @@ const DOM = (() => {
       })
     }
 
-    
-
     const addTodoButton = document.getElementById("add-todo");
     addTodoButton.addEventListener("click", () => openForm("Add todo"));
 
   }
+
+  const resetTodosContainer = () => {
+    document.querySelector(".todos-container").innerHTML = `
+      <p class="no-project-notification">You have no projects - <span class="new-project">Click here</a> to add one.</span>
+    `;
+
+  };
 
   const markSelectedProject = targetProjectElement => {
 
@@ -351,7 +361,8 @@ const DOM = (() => {
     toggleTodoDetails,
     removeChildTodoFromProject,
     populateTodoFormData,
-    populateProjectFormData
+    populateProjectFormData,
+    resetTodosContainer
     
   };
 
@@ -375,18 +386,18 @@ const controller = (() => {
   }
 
   const getSelectedProjectIndex = () => {
-    return Array.from(document.getElementsByClassName("project")).find(project => {
+    return parseInt(Array.from(document.getElementsByClassName("project")).find(project => {
       return project.classList.contains("selected")
-    }).getAttribute("data-project-index");
+    }).getAttribute("data-project-index"));
   }
 
-  // project - Represents a project tab element
+  // project - Represents a project HTML element
   const selectProject = project => {
 
-      const projectIndex = project.getAttribute("data-project-index");
+    const projectIndex = project.getAttribute("data-project-index") || null;
 
-      DOM.markSelectedProject(project);
-      DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
+    DOM.markSelectedProject(project);
+    DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
 
   }
 
@@ -425,6 +436,8 @@ const controller = (() => {
 
       console.log(form.elements["Project name"])
 
+      selectedProjectIndex = getSelectedProjectIndex();
+
       dataStorage.projects[indexOfProjectBeingEdited].projectName = form.elements["Project name"].value;
       DOM.renderProjects(dataStorage.projects);
       DOM.closeForm();
@@ -453,6 +466,7 @@ const controller = (() => {
 
       // Get selected project and add the new todo to it
       selectedProjectIndex = getSelectedProjectIndex();
+      console.log(selectedProjectIndex);
       dataStorage.projects[selectedProjectIndex].addTodo(newTodo);
 
       // Close/Reset form, render updated list of todos
@@ -475,15 +489,18 @@ const controller = (() => {
         form["todoEstimatedTime"].value
       )
 
-        // Close/Reset form, render updated list of todos
-        DOM.closeForm();
-        DOM.resetForm(form);
-        DOM.renderTodosFromProject(dataStorage.projects[selectedProjectIndex], selectedProjectIndex);
+      selectedProjectIndex = getSelectedProjectIndex();
+      console.log(selectedProjectIndex);
 
-        // Updates the count displayed on project tab
-        DOM.renderProjects(dataStorage.projects);
-        DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
-      }
+      // Close/Reset form, render updated list of todos
+      DOM.closeForm();
+      DOM.resetForm(form);
+      DOM.renderTodosFromProject(dataStorage.projects[selectedProjectIndex], selectedProjectIndex);
+
+      // Updates the count displayed on project tab
+      DOM.renderProjects(dataStorage.projects);
+      DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+    }
       
     }
 
@@ -524,7 +541,7 @@ const controller = (() => {
 
     console.log(e.target);
 
-    if (e.target.getAttribute("id") === "new-project") {
+    if (e.target.getAttribute("id") === "new-project" || e.target.classList.contains("new-project")) {
       DOM.openForm("New project");
     }
 
@@ -560,8 +577,38 @@ const controller = (() => {
     else if (e.target.classList.contains("delete-project")) {
       console.log("Deleting project");
 
+      const deletedProjectIndex = parseInt(e.target.parentNode.parentNode.getAttribute("data-project-index"));
+
+      
+      
+      selectedProjectIndex = getSelectedProjectIndex();
+
+      console.log(selectedProjectIndex)
+
       dataStorage.deleteProject(e.target.parentNode.parentNode.getAttribute("data-project-index"));
-      selectProject(document.querySelector(".project"));
+      
+      console.log(dataStorage.projects.length);
+
+      if (dataStorage.projects.length !== 0) {
+
+        // Retain the previously selected project, or select the last project after deletion of the last project
+        if (deletedProjectIndex < selectedProjectIndex) {
+          selectedProjectIndex--;
+        } else if (selectedProjectIndex >= dataStorage.projects.length) {
+          selectedProjectIndex--;
+        }
+
+        console.log(selectedProjectIndex)
+
+        selectProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+        DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+      } else {
+        console.log("No more projects");
+        DOM.resetTodosContainer();
+      }
+      
+
+      
 
     }
 
