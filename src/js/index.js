@@ -54,6 +54,10 @@ Todo (B) - Displays the following:
 
 -User can tab over to buttons that are on the z-index baseline while form is open
 
+// TO DO
+
+
+
 */
 
 import Project from "./Project";
@@ -62,13 +66,15 @@ import Todo from "./Todo";
 import projectForm from '../modules/projectForm.js';
 import todoForm from '../modules/todoForm';
 
+import projectElement from "../modules/projectElement";
+
 const moment = require("moment");
 
 require("../scss/main.scss");
 
 const dataStorage = (() => {
 
-  const projects = [];
+  let projects = [];
 
   const project1 = new Project("My first project");
   project1.addTodo(new Todo("Do homework", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
@@ -94,11 +100,19 @@ const dataStorage = (() => {
     //DOM.removeChildTodoFromProject(todoIndex);
   }
 
+  const deleteProject = projectIndex => {
+    console.log(projects);
+    console.log(projectIndex);
+    projects.splice(projectIndex, 1);
+    DOM.renderProjects(projects);
+    console.log(projects);
+  }
+
   const getTodoObject = (projectIndex, todoIndex) => {
     return projects[projectIndex].todos[todoIndex];
   }
 
-  return {projects, addProject, deleteTodo, getTodoObject};
+  return {projects, addProject, deleteTodo, getTodoObject, deleteProject};
 
 })();
 
@@ -113,17 +127,24 @@ const DOM = (() => {
 
     projects.forEach(project => {
 
-      const projectDiv = document.createElement("div");
-      const projectInner = document.createElement("p");
+      // Refactor this
 
+      const projectDiv = document.createElement("div");
       projectDiv.classList.add("project");
       projectDiv.setAttribute("data-project-index", projectIndex);
+
+      projectDiv.innerHTML = projectElement(project);
+
+      // const projectInner = document.createElement("p");
+
+      
+      
       projectIndex++;
 
-      projectInner.textContent += project.projectName;
-      projectInner.textContent += " (" + project.todos.length + ")";
+      // projectInner.textContent += project.projectName;
+      // projectInner.textContent += " (" + project.todos.length + ")";
 
-      projectDiv.appendChild(projectInner);
+      // projectDiv.appendChild(projectInner);
       projectContainer.appendChild(projectDiv);
 
     });
@@ -163,11 +184,15 @@ const DOM = (() => {
 
     let todoIndex = 0; // Assign each rendered todo to a data-index so we can locate them later
 
+    todosContainer.innerHTML += `<button id="add-todo">+ Add todo</button>`;
+
     if (project.todos.length === 0) {
       const message = document.createElement("p");
       message.textContent = "You don't have any todos in this project!";
       todosContainer.appendChild(message);
+      
     } else {
+
       project.todos.forEach(todo => {
 
         const todoElement = 
@@ -197,7 +222,7 @@ const DOM = (() => {
       })
     }
 
-    todosContainer.innerHTML += `<button id="add-todo">+ Add todo</button>`;
+    
 
     const addTodoButton = document.getElementById("add-todo");
     addTodoButton.addEventListener("click", () => openForm("Add todo"));
@@ -281,6 +306,11 @@ const DOM = (() => {
 
   }
 
+  const populateProjectFormData = project => {
+    const projectForm = document.getElementById("project-form");
+    projectForm.elements["Project name"].value = project.projectName;
+  }
+
   const resetForm = form => form.reset();
 
   const closeForm = e => {
@@ -317,7 +347,9 @@ const DOM = (() => {
     closeForm,
     toggleTodoDetails,
     removeChildTodoFromProject,
-    populateTodoFormData
+    populateTodoFormData,
+    populateProjectFormData
+    
   };
 
 })();
@@ -325,6 +357,8 @@ const DOM = (() => {
 const controller = (() => {
 
   let selectedProjectIndex = 0;
+
+  let indexOfProjectBeingEdited;
 
   let projectIndexOfTodoBeingEdited;
   let editedTodoIndex;
@@ -384,10 +418,19 @@ const controller = (() => {
       return;
     }
 
-    console.log("hey im a project form")
+    if (form.getAttribute("data-form-action") === "Edit project") {
+
+      console.log(form.elements["Project name"])
+
+      dataStorage.projects[indexOfProjectBeingEdited].projectName = form.elements["Project name"].value;
+      DOM.renderProjects(dataStorage.projects);
+      DOM.closeForm();
+      DOM.renderProjects(dataStorage.projects);
+      DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+    }
 
     // Extract values from form
-    if (form.getAttribute("id") === "project-form") {
+    else if (form.getAttribute("id") === "project-form") {
       
       const newProjectName = document.getElementById("projectName").value;
       createProject(newProjectName);
@@ -451,13 +494,17 @@ const controller = (() => {
     const formInputsToValidate = Array.from(form.elements).filter(formElement => {
       return formElement.type === "text" || formElement.type === "number";
     });
-    
+
+    formInputsToValidate.forEach(input => {
+      input.style.border = "1px solid #A9A9A9";
+      console.log("hey");
+    });    
     formInputsToValidate.forEach(textInput => {
       if (textInput.value.trim().length === 0) {
 
         errors.push(`${textInput.name} not specified`)
 
-        textInput.style.border = "2px solid red";
+        textInput.style.border = "1px solid red";
 
       }
     })
@@ -481,6 +528,24 @@ const controller = (() => {
     // else if (e.target.getAttribute("id") === "add-todo") {
     //   DOM.openForm("Add todo")
     // }
+
+    else if (e.target.classList.contains("edit-project")) {
+      console.log(e.target.parentNode.parentNode);
+
+      indexOfProjectBeingEdited = e.target.parentNode.parentNode.getAttribute("data-project-index");
+
+      DOM.openForm("Edit project");
+      DOM.populateProjectFormData(dataStorage.projects[parseInt(e.target.parentNode.parentNode.getAttribute("data-project-index"))]);
+
+    }
+
+    else if (e.target.classList.contains("delete-project")) {
+      console.log("Deleting project");
+
+      dataStorage.deleteProject(e.target.parentNode.parentNode.getAttribute("data-project-index"));
+      selectProject(document.querySelector(".project"));
+
+    }
 
     else if (e.target.classList.contains("form-container")) {
       DOM.closeForm();
@@ -511,9 +576,13 @@ const controller = (() => {
       const projectIndexOfTodo = parseInt(todoElementToDelete.getAttribute("data-child-of-project-at-index"));
       const todoIndex = parseInt(todoElementToDelete.getAttribute("data-todo-index"));
 
-      console.table([projectIndexOfTodo, todoIndex]);
+      selectedProjectIndex = projectIndexOfTodo;
 
       dataStorage.deleteTodo(projectIndexOfTodo, todoIndex);
+      console.log(Array.from(document.getElementsByClassName("project"))[selectedProjectIndex]);
+      
+      DOM.renderProjects(dataStorage.projects);
+      selectProject(document.getElementsByClassName("project")[selectedProjectIndex]);
     }
     
     else if (DOM.checkIfTargetWithinElement(e.target, ".todo")) {

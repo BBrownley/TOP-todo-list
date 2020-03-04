@@ -2,7 +2,7 @@ export default function todoForm(action) {
 
     return `
                 <form action="#" id="todo-form" class="form" data-form-action="${action}">
-                    <button class="close-form-button">Close</button>
+                    <!-- <button class="close-form-button">Close</button> -->
 
                     <h2 id="todo-form-action-header">${action}</h2>
 
