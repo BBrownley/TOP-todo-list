@@ -87,10 +87,9 @@ const dataStorage = (() => {
 
   const loadProjects = () => {
     if (localStorage.getItem("localStorageProjects") === null) {
-      console.log("No local storage exists for projects - Generating a dummy set of projects")
 
       const project1 = new Project("My first project", []);
-      project1.addTodo(new Todo("Do homework", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
+      project1.addTodo(new Todo("Do homework", "Here is an example description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
       project1.addTodo(new Todo("Wash the dishes", "", "", "Very Low", "20"))
       project1.addTodo(new Todo("Busy work", "", "", "Very High", "60"))
 
@@ -112,23 +111,21 @@ const dataStorage = (() => {
       let storedProjects = JSON.parse(localStorage.getItem("localStorageProjects"));
 
       storedProjects = storedProjects.map(savedProject => {
-        console.log(savedProject)
+
         let projectProperties = [];
+
         for (let key in savedProject) {
-          console.log(savedProject[key]);
           projectProperties.push(savedProject[key]);
         }
-        console.log(projectProperties)
-        console.log(...projectProperties)
-        console.log(new Project(...projectProperties))
+
         return new Project(...projectProperties);
       })
 
+      // Retain reference to original projects array, insert stored projects into it
       projects.length = 0;
 
       projects.push(...storedProjects);
       
-      console.log(projects)
     }
 
   }
@@ -161,13 +158,13 @@ const DOM = (() => {
 
     let projectIndex = 0; // Assign each rendered project to a data-index so we can locate them later
 
+    const projectContainer = document.querySelector(".sidebar .project-container");
+    projectContainer.innerHTML = "";
+
     if (projects.length === 0) {
       DOM.resetTodosContainer();
       return;
     }
-
-    const projectContainer = document.querySelector(".sidebar .project-container");
-    projectContainer.innerHTML = "";
 
     projects.forEach(project => {
 
@@ -222,8 +219,6 @@ const DOM = (() => {
 
     todosContainer.innerHTML += `<button id="add-todo">+ Add todo</button>`;
 
-    console.log(project)
-
     if (project.todos.length === 0) {
       const message = document.createElement("p");
       message.textContent = "You don't have any todos in this project!";
@@ -269,7 +264,7 @@ const DOM = (() => {
 
   const resetTodosContainer = () => {
     document.querySelector(".todos-container").innerHTML = `
-      <p class="no-project-notification">You have no projects - <span class="new-project">Click here</a> to add one.</span>
+      <p class="no-project-notification">You have no projects - <span class="new-project">Click here</a> to make one.</span>
     `;
 
   };
@@ -315,8 +310,6 @@ const DOM = (() => {
 
       formContainer.innerHTML = todoForm(action);
       document.getElementById("app").appendChild(formContainer);
-
-      console.log(document.querySelector('input[type="submit"]'));
       
       document.querySelector('input[type="submit"]').addEventListener("click", e => {
         e.preventDefault();
@@ -610,7 +603,7 @@ const controller = (() => {
         selectProject(document.getElementsByClassName("project")[selectedProjectIndex]);
         DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
       } else {
-        DOM.resetTodosContainer();
+        DOM.renderProjects(dataStorage.projects);
       } 
 
       localStorage.setItem("localStorageProjects", JSON.stringify(dataStorage.projects));
