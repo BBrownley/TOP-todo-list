@@ -2,6 +2,8 @@ const moment = require("moment");
 
 export default function createTodoElement(todo, todoIndex, projectIndex) {
 
+    
+
     return `
     
     <div class="todo" data-todo-index=${todoIndex} data-child-of-project-at-index=${projectIndex} style="border-left: 5px solid ${colorTodoPriority(todo.priority)}">

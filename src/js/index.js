@@ -53,11 +53,15 @@ Todo (B) - Displays the following:
 // BUGS
 
 -User can tab over to buttons that are on the z-index baseline while form is open (post MVP)
--If user deletes their last project, the app breaks
 
 // TO DO (heh)
 
 -Implement localStorage
+
+When do we want to update the storage? Whenever we:
+  -Submit a form (Add/edit project, Add/edit todo)
+  -Delete a todo or project
+  -Mark a todo as complete
 
 */
 
@@ -77,25 +81,57 @@ const dataStorage = (() => {
 
   let projects = [];
 
-  const project1 = new Project("My first project");
-  project1.addTodo(new Todo("Do homework", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
-  project1.addTodo(new Todo("Wash the dishes", "", "", "Very Low", "20"))
-  project1.addTodo(new Todo("Busy work", "", "", "Very High", "60"))
+  const getProjects = () => {
+    return projects;
+  }
 
-  projects.push(project1);
+  const loadProjects = () => {
+    if (localStorage.getItem("localStorageProjects") === null) {
+      console.log("No local storage exists for projects - Generating a dummy set of projects")
 
-  const project2 = new Project("Another project");
-  project2.addTodo(new Todo("Take out trash", "", "", "Normal", "30"))
-  project2.addTodo(new Todo("Work out", "", "", "High", "2"))
+      const project1 = new Project("My first project", []);
+      project1.addTodo(new Todo("Do homework", "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit recusandae animi corporis minus, est voluptatum vitae et, voluptatibus consequatur suscipit distinctio mollitia voluptatem ut sint dolorum iure tenetur nulla. Maxime, maiores rem quod nam minus doloremque soluta natus numquam velit!", "", "Low", "3"))
+      project1.addTodo(new Todo("Wash the dishes", "", "", "Very Low", "20"))
+      project1.addTodo(new Todo("Busy work", "", "", "Very High", "60"))
 
-  projects.push(project2);
+      projects.push(project1);
 
-  const project3 = new Project("Anotha one");
-  project3.addTodo(new Todo("Task 1", "", "", "Normal", "30"))
-  project3.addTodo(new Todo("Task 2", "", "", "High", "2"))
+      const project2 = new Project("Another project", []);
+      project2.addTodo(new Todo("Take out trash", "", "", "Normal", "30"))
+      project2.addTodo(new Todo("Work out", "", "", "High", "2"))
 
-  projects.push(project3);
+      projects.push(project2);
 
+      const project3 = new Project("Anotha one", []);
+      project3.addTodo(new Todo("Task 1", "", "", "Normal", "30"))
+      project3.addTodo(new Todo("Task 2", "", "", "High", "2"))
+
+      projects.push(project3);
+    } else {
+
+      let storedProjects = JSON.parse(localStorage.getItem("localStorageProjects"));
+
+      storedProjects = storedProjects.map(savedProject => {
+        console.log(savedProject)
+        let projectProperties = [];
+        for (let key in savedProject) {
+          console.log(savedProject[key]);
+          projectProperties.push(savedProject[key]);
+        }
+        console.log(projectProperties)
+        console.log(...projectProperties)
+        console.log(new Project(...projectProperties))
+        return new Project(...projectProperties);
+      })
+
+      projects.length = 0;
+
+      projects.push(...storedProjects);
+      
+      console.log(projects)
+    }
+
+  }
 
   const addProject = project => projects.push(project);
 
@@ -104,20 +140,18 @@ const dataStorage = (() => {
     projects[projectIndex].deleteTodo(todoIndex);
 
     DOM.renderTodosFromProject(projects[projectIndex], projectIndex);
-    //DOM.removeChildTodoFromProject(todoIndex);
   }
 
   const deleteProject = projectIndex => {
     projects.splice(projectIndex, 1);
     DOM.renderProjects(projects);
-    console.log(projects.length === 0);
   }
 
   const getTodoObject = (projectIndex, todoIndex) => {
     return projects[projectIndex].todos[todoIndex];
   }
 
-  return {projects, addProject, deleteTodo, getTodoObject, deleteProject};
+  return {projects, addProject, deleteTodo, getTodoObject, deleteProject, loadProjects, getProjects};
 
 })();
 
@@ -126,6 +160,11 @@ const DOM = (() => {
   const renderProjects = projects => {
 
     let projectIndex = 0; // Assign each rendered project to a data-index so we can locate them later
+
+    if (projects.length === 0) {
+      DOM.resetTodosContainer();
+      return;
+    }
 
     const projectContainer = document.querySelector(".sidebar .project-container");
     projectContainer.innerHTML = "";
@@ -140,16 +179,8 @@ const DOM = (() => {
 
       projectDiv.innerHTML = projectElement(project);
 
-      // const projectInner = document.createElement("p");
-
-      
-      
       projectIndex++;
 
-      // projectInner.textContent += project.projectName;
-      // projectInner.textContent += " (" + project.todos.length + ")";
-
-      // projectDiv.appendChild(projectInner);
       projectContainer.appendChild(projectDiv);
 
     });
@@ -187,9 +218,11 @@ const DOM = (() => {
 
     todosContainer.innerHTML = "";
 
-    let todoIndex = 0; // Assign each rendered todo to a data-index so we can locate them later
+    let todoIndex = 0; // Assign each rendered todo to a data attribute so we can locate them later
 
     todosContainer.innerHTML += `<button id="add-todo">+ Add todo</button>`;
+
+    console.log(project)
 
     if (project.todos.length === 0) {
       const message = document.createElement("p");
@@ -200,8 +233,6 @@ const DOM = (() => {
 
       project.todos.forEach(todo => {
 
-        console.log(todo.completed);
-
         const todoElement = 
 
         `
@@ -209,8 +240,9 @@ const DOM = (() => {
             <div class="todo-info">
                 <p class="todo-title ${todo.completed ? "crossed-off" : ""}">${todo.title}</p>
                 <span class="todo-duration">
-                (Est. ${parseInt(todo.estimatedTime)} minutes, 
-                due ${moment(todo.dueDate, "YYYY-DD-MM").format("MM-DD-YYYY")})
+                
+                <i class="fa fa-clock-o" aria-hidden="true"></i> ${parseInt(todo.estimatedTime)} min, 
+                due ${moment(todo.dueDate, "YYYY-DD-MM").format("DD-MM-YYYY")}
                 </span>
                 <div class="todo-details">
                   <span class="todo-priority"><div class="todo-priority-marker" style="background-color: ${colorTodoPriority(todo.priority)}"></div>${todo.priority} priority</span>
@@ -254,17 +286,6 @@ const DOM = (() => {
     return target.closest(selector);
   }
 
-  const addFormEventListeners = () => {
-
-    console.log("heyu")
-    const submitButton = document.querySelector('input[type="submit"]');
-    console.log(submitButton);
-    submitButton.addEventListener("click", e => {
-      e.preventDefault();
-      console.log("Added form event listeners")
-    })
-  }
-
   const openForm = action => {
 
     if (action === "New project" || action === "Edit project") {
@@ -279,6 +300,12 @@ const DOM = (() => {
 
         e.preventDefault();
         controller.submitForm(formContainer);
+      });
+
+      formContainer.addEventListener("mousedown", e => {
+        if (e.target.classList.contains("form-container")) {
+          DOM.closeForm()
+        }
       });
 
     } else if (action === "Add todo" || action === "Edit todo") {
@@ -296,9 +323,15 @@ const DOM = (() => {
         controller.submitForm(formContainer);
       });
 
+      formContainer.addEventListener("mousedown", e => {
+        if (e.target.classList.contains("form-container")) {
+          DOM.closeForm()
+        }
+      });
+
       if (action === "Add todo") {
         formContainer.querySelector("#todo-form").reset();
-        document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-DD-MM");
+        document.getElementById("todoDueDate").value = moment(new Date()).add(1, "days").format("YYYY-MM-DD");
       } else {
         return;
       }
@@ -314,7 +347,7 @@ const DOM = (() => {
     todoForm.elements["Title"].value = todo.title;
     todoForm.elements["Description"].value = todo.description;
     todoForm.elements["priority"].value = todo.priority;
-    todoForm.elements["todoDueDate"].value = todo.dueDate;
+    todoForm.elements["todoDueDate"].value = moment(todo.dueDate).format("YYYY-MM-DD");
     todoForm.elements["Estimated time"].value = todo.estimatedTime;
 
   }
@@ -377,14 +410,6 @@ const controller = (() => {
   let projectIndexOfTodoBeingEdited;
   let editedTodoIndex;
 
-  const updateProject = () => {
-
-  }
-
-  const updateTodo = () => {
-
-  }
-
   const getSelectedProjectIndex = () => {
     return parseInt(Array.from(document.getElementsByClassName("project")).find(project => {
       return project.classList.contains("selected")
@@ -397,12 +422,13 @@ const controller = (() => {
     const projectIndex = project.getAttribute("data-project-index") || null;
 
     DOM.markSelectedProject(project);
+    selectedProjectIndex = document.querySelector(".project.selected").getAttribute("data-project-index");
     DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
 
   }
 
   const createProject = (projectName) => {
-    dataStorage.projects.push(new Project(projectName));
+    dataStorage.projects.push(new Project(projectName, []));
     DOM.renderProjects(dataStorage.projects);
     DOM.closeForm();
   }
@@ -418,8 +444,6 @@ const controller = (() => {
 
     if (formValidationErrors.length > 0) {
 
-      console.log(form)
-
       const formErrorContainer = form.querySelector(".form-errors");
       formErrorContainer.innerHTML = "";
 
@@ -433,8 +457,6 @@ const controller = (() => {
     }
 
     if (form.getAttribute("data-form-action") === "Edit project") {
-
-      console.log(form.elements["Project name"])
 
       selectedProjectIndex = getSelectedProjectIndex();
 
@@ -466,7 +488,6 @@ const controller = (() => {
 
       // Get selected project and add the new todo to it
       selectedProjectIndex = getSelectedProjectIndex();
-      console.log(selectedProjectIndex);
       dataStorage.projects[selectedProjectIndex].addTodo(newTodo);
 
       // Close/Reset form, render updated list of todos
@@ -479,7 +500,6 @@ const controller = (() => {
       DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
 
     } else if (form.getAttribute("data-form-action") === "Edit todo") {
-      console.log(dataStorage.projects[projectIndexOfTodoBeingEdited].todos[editedTodoIndex])
 
       dataStorage.projects[projectIndexOfTodoBeingEdited].todos[editedTodoIndex] = new Todo(
         form["todoTitle"].value,
@@ -490,7 +510,6 @@ const controller = (() => {
       )
 
       selectedProjectIndex = getSelectedProjectIndex();
-      console.log(selectedProjectIndex);
 
       // Close/Reset form, render updated list of todos
       DOM.closeForm();
@@ -501,8 +520,10 @@ const controller = (() => {
       DOM.renderProjects(dataStorage.projects);
       DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
     }
+
+    localStorage.setItem("localStorageProjects", JSON.stringify(dataStorage.projects));
       
-    }
+  }
 
   
 
@@ -517,7 +538,6 @@ const controller = (() => {
 
     formInputsToValidate.forEach(input => {
       input.style.border = "1px solid #A9A9A9";
-      console.log("hey");
     });    
     formInputsToValidate.forEach(textInput => {
       if (textInput.value.trim().length === 0) {
@@ -539,18 +559,11 @@ const controller = (() => {
 
     // My personal rule of thumb is "the nearest static container is where I want to listen." - snowmonkey
 
-    console.log(e.target);
-
     if (e.target.getAttribute("id") === "new-project" || e.target.classList.contains("new-project")) {
       DOM.openForm("New project");
     }
 
-    // else if (e.target.getAttribute("id") === "add-todo") {
-    //   DOM.openForm("Add todo")
-    // }
-
     else if (e.target.classList.contains("edit-project")) {
-      console.log(e.target.parentNode.parentNode);
 
       indexOfProjectBeingEdited = e.target.parentNode.parentNode.getAttribute("data-project-index");
 
@@ -560,7 +573,6 @@ const controller = (() => {
     }
 
     else if (e.target.classList.contains("check-todo")) {
-      console.log("Checking off project");
 
       const projectElementToCheck = e.target.parentNode.parentNode;
 
@@ -570,24 +582,21 @@ const controller = (() => {
       const todoToToggleCompleted = dataStorage.projects[projectIndex].todos[todoIndex];
 
       todoToToggleCompleted.completed = !todoToToggleCompleted.completed;
+      DOM.renderProjects(dataStorage.projects);
+      DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
       DOM.renderTodosFromProject(dataStorage.projects[projectIndex], projectIndex);
+
+      localStorage.setItem("localStorageProjects", JSON.stringify(dataStorage.projects));
 
     }
 
     else if (e.target.classList.contains("delete-project")) {
-      console.log("Deleting project");
 
       const deletedProjectIndex = parseInt(e.target.parentNode.parentNode.getAttribute("data-project-index"));
 
-      
-      
       selectedProjectIndex = getSelectedProjectIndex();
 
-      console.log(selectedProjectIndex)
-
       dataStorage.deleteProject(e.target.parentNode.parentNode.getAttribute("data-project-index"));
-      
-      console.log(dataStorage.projects.length);
 
       if (dataStorage.projects.length !== 0) {
 
@@ -598,22 +607,14 @@ const controller = (() => {
           selectedProjectIndex--;
         }
 
-        console.log(selectedProjectIndex)
-
         selectProject(document.getElementsByClassName("project")[selectedProjectIndex]);
         DOM.markSelectedProject(document.getElementsByClassName("project")[selectedProjectIndex]);
       } else {
-        console.log("No more projects");
         DOM.resetTodosContainer();
-      }
-      
+      } 
 
-      
+      localStorage.setItem("localStorageProjects", JSON.stringify(dataStorage.projects));
 
-    }
-
-    else if (e.target.classList.contains("form-container")) {
-      DOM.closeForm();
     }
 
     else if (DOM.checkIfTargetWithinElement(e.target, ".project")) {
@@ -644,10 +645,12 @@ const controller = (() => {
       selectedProjectIndex = projectIndexOfTodo;
 
       dataStorage.deleteTodo(projectIndexOfTodo, todoIndex);
-      console.log(Array.from(document.getElementsByClassName("project"))[selectedProjectIndex]);
       
       DOM.renderProjects(dataStorage.projects);
       selectProject(document.getElementsByClassName("project")[selectedProjectIndex]);
+
+      localStorage.setItem("localStorageProjects", JSON.stringify(dataStorage.projects));
+
     }
     
     else if (DOM.checkIfTargetWithinElement(e.target, ".todo")) {
@@ -658,12 +661,12 @@ const controller = (() => {
 
   window.addEventListener("load", () => {
     if (testingUI) return;
+    //localStorage.removeItem("localStorageProjects")
+    dataStorage.loadProjects();
     DOM.renderProjects(dataStorage.projects);
-    selectProject(document.querySelector(".project"));
-    
-    // document.getElementById("todoDueDate").value = "2014-02-09"
-    console.log(moment(new Date()).add(1, "days").format("MM-DD-YYYY"));
-    // console.log(document.getElementById("todoDueDate").value);
+    if (dataStorage.projects.length > 0) {
+      selectProject(document.querySelector(".project"));
+    }
   })
 
   return {submitForm, newProjectButton}
