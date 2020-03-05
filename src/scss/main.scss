@@ -1,3 +1,6 @@
+@import "./components/form.scss";
+@import "./components/project.scss";
+@import "./components/todo.scss";
 
 * {
     padding: 0;
@@ -26,27 +29,8 @@ button {
     &:hover {
         cursor: pointer;
     }
-}
-
-.no-project-notification {
-    position: relative;
-    top: -50px;
-    .new-project {
-        position: relative;
-        color: white;
-        padding: 5px;
-        cursor: pointer;
-        background-color: #333;
-    }
-}
-
-
-.nav {
-    // background-color: green;
-    padding: 5px 0 0 10px;
-    ul li {
-        // border: 1px solid black;
-        padding: 5px 0;
+    &:focus {
+        outline: none;
     }
 }
 
@@ -57,8 +41,30 @@ li {
 ::-webkit-scrollbar {
     width: 10px;
     &-thumb {
-        background: #36373F;
+        background: lighten(#36373F, 20%);
         border-radius: 0px;
+    }
+}
+
+.sidebar {
+    position: relative;
+    top: -15px;
+    height: calc(100vh + 15px);
+    padding-top: 15px;
+    width: 250px;
+    margin-right: 10px;
+    background-color: #36373F;
+    box-shadow: 2px 2px 2px gray;
+    color: white;
+    overflow-y: scroll;
+    overflow-y: overlay;
+    overflow-x: visible;
+    &::-webkit-scrollbar {
+        width: 10px;
+        &-thumb {
+            background: #D4DAF1;
+            border-radius: 0px;
+        }
     }
 }
 
@@ -79,49 +85,29 @@ li {
     }
 }
 
-.sidebar {
-    position: relative;
-    top: -15px;
-    height: calc(100vh + 15px);
-    padding-top: 15px;
-    width: 250px;
-    // background-color: rgba($color: #cad8f1, $alpha: 1.0);
-    background-color: #36373F;
-    // border-right: 2px solid black;
-    box-shadow: 2px 2px 2px gray;
-    color: white;
-    overflow-y: scroll;
-    overflow-y: overlay;
-    overflow-x: visible;
-    &::-webkit-scrollbar {
-        width: 10px;
-        &-thumb {
-            background: #D4DAF1;
-            border-radius: 0px;
-        }
-    }
-}
-
-.crossed-off {
-    text-decoration: line-through;
-    color: #bbb;
-    ~.todo-duration {
-        display: none;
-    }
-}
-
 .todos-container {
     overflow-y: scroll;
-    overflow-x: hidden;
-    padding: 80px 20px 20px 20px;
+    overflow-x: auto;
+    padding: 80px 20px 20px 0px;
+    margin-left: 10px;
     flex: 1;
     display: flex;
     flex-direction: column;
     position: relative;
-    
+    .no-project-notification {
+        position: relative;
+        top: -50px;
+        .new-project {
+            position: relative;
+            color: white;
+            padding: 5px;
+            cursor: pointer;
+            background-color: #333;
+        }
+    }
     #add-todo {
         position: absolute;
-        left: 20px;
+        left: 0;
         top: 20px;
         padding: 10px;
         align-self: center;
@@ -131,230 +117,17 @@ li {
         color: black;
         margin-bottom: 10px;
     }
-    .todo {
-        background-color: rgb(244,244,244);
-        border-left: 7px solid orange;
-        box-shadow: 2px 2px 3px #aaa;
-        padding: 10px;
-        margin-bottom: 10px;
-        // min-width: 500px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        &:hover {
-            background-color: white;
-        }
-        &.expanded {
-            background-color: white;
-            .todo-details {
-                display: block;
-            }
-            .todo-info {
-                padding-top: 10px;
-                flex: 0 1 auto;
-                white-space: normal;
-                overflow: visible;
-            }
-        }
-        .todo-info {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            .todo-title {
-                display: inline-block;
-                font-size: 20px;
-                margin-right: 5px;
-            }
-            .todo-duration {
-                color: gray;
-                font-size: 12px;
-            }
-            .todo-priority {
-                display: block;
-                margin-top: 5px;
-                & > * {
-                    display: inline-block;
-                }
-                &-marker {
-                    height: 10px;
-                    width: 10px;
-                    border-radius: 10px;
-                    background-color: orange;
-                    margin-right: 5px;
-                    border: 1px solid black;
-                }
-            }
-        }
-        .todo-details {
-            display: none;
-            margin-top: 10px;
-            .todo-description {
-                margin-top: 10px;
-                max-width: 500px;
-            }
-        }
-        .todo-options {
-
-            align-self: flex-start;
-            
-
-            button {
-                width: 40px;
-                border: none;
-                font-size: 30px;
-                color: #ddd;
-                &:focus {
-                    outline: none;
-                }
-                i {
-                    pointer-events: none;
-                }
-            }
-            
-            .check-todo {
-                &:hover {
-                    color: rgb(59, 226, 59);
-                }
-            }
-
-            .edit-todo {
-                position: relative;
-                top: 2px;
-                // color: #ddd;
-                &:hover {
-                    color: #555;
-                }
-            }
-            .delete-todo:hover {
-                // background-color: rgb(133, 32, 32);
-                color: red;
-            }
-        }
-    }
-}
-input[type="text"], input[type="text"] {
-    border: 1px solid #A9A9A9;
 }
 
 .project-container {
     margin-top: 5px;
     width: 100%;
-    .project {
-        padding: 10px 0 10px 10px;
-        width: 100%;
-        color: rgb(122, 122, 122);
-        display: flex;
-        justify-content: space-between;
-        &:hover {
-            cursor: pointer;
-            background-color: lighten(#36373F, 5%);
-            .project-edit {
-                display: inline-block;
-                color: #bbb;
-                &:hover {
-                    color: #eee;
-                }
-            }
-            .project-options {
-                display: block;
-            }
-        }
-        &.selected {
-            background-color: #43454E;
-            border-left: 5px solid #D4DAF1;
-            color: #DFE3FC;
-        }
-        .project-count {
-            font-size: 12px;
-            margin-left: 2px;
-            &:before {
-                content: "(";
-            }
-            &:after {
-                content: ")";
-            }
-        }
-        .project-edit {
-            display: none;
-            float: right;
-        }
-        .project-options {
-            display: none;
-            color: #888;
-            & > i {
-                margin-right: 10px;
-                &:hover {
-                    color: #ddd;
-                }   
-            }
-        }
-        
-        // .project-menu {
-            
-        //     .project-menu-icon {
-        //         margin-right: 10px;
-        //         // position: relative;
-        //         .project-menu-list {
-        //             background-color: black;
-        //             //position: absolute;
-        //             right: 50px;
-        //             width: 30px;
-        //         }
-        //     }
-            
-        // }
-    }
-}
-
-#edit-todo-form-container {
-    display: block;
 }
 
 .form-container {
-    // display: none;
     position: fixed;
     z-index: 100;
     background-color: rgba(0,0,0,.4);
     height: 100%;
     width: 100%;
-    .form {
-        background-color: white;
-        width: 500px;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 3px;
-        border: 1px solid black;
-        display: flex;
-        flex-direction: column;
-        .close-form-button {
-            background-color: red;
-            border: 1px solid black;
-            padding: 10px;
-            color: white;
-            width: 100px;
-        }
-        & > *:not(:last-child) {
-            margin-bottom: 10px;
-        }
-        input[type="text"] {
-            padding: 5px;
-        }
-        input[type="submit"] {
-            padding: 10px;
-        }
-        input[type="number"] {
-            display: inline-block;
-            width: 100px;
-        }
-        #tod
-        .radio-buttons {
-            display: inline-block;
-        }
-        .form-errors {
-            font-size: 14px;
-            color: red;
-        }
-    }
 }

@@ -1,0 +1,102 @@
+.todo {
+    background-color: rgb(244,244,244);
+    border-left: 7px solid orange;
+    box-shadow: 2px 2px 3px #aaa;
+    padding: 10px;
+    margin-bottom: 10px;
+    min-width: 500px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    &:hover {
+        background-color: white;
+    }
+    &.expanded {
+        background-color: white;
+        .todo-details {
+            display: block;
+        }
+        .todo-info {
+            padding-top: 10px;
+            flex: 0 1 auto;
+            white-space: normal;
+            overflow: visible;
+        }
+    }
+    .todo-info {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        .todo-title {
+            display: inline-block;
+            font-size: 20px;
+            margin-right: 5px;
+            &.crossed-off {
+                text-decoration: line-through;
+                color: #bbb;
+                ~.todo-duration {
+                    display: none;
+                }
+            }
+        }
+        .todo-duration {
+            color: gray;
+            font-size: 12px;
+        }
+        .todo-priority {
+            display: block;
+            margin-top: 5px;
+            & > * {
+                display: inline-block;
+            }
+            &-marker {
+                height: 10px;
+                width: 10px;
+                border-radius: 10px;
+                background-color: orange;
+                margin-right: 5px;
+                border: 1px solid black;
+            }
+        }
+    }
+    .todo-details {
+        display: none;
+        margin-top: 10px;
+        .todo-description {
+            margin-top: 10px;
+            max-width: 500px;
+        }
+    }
+    .todo-options {
+        align-self: flex-start;
+        button {
+            width: 40px;
+            border: none;
+            font-size: 30px;
+            color: #ddd;
+            &:focus {
+                outline: none;
+            }
+            i {
+                pointer-events: none;
+            }
+        }
+        .check-todo {
+            &:hover {
+                color: rgb(59, 226, 59);
+            }
+        }
+        .edit-todo {
+            position: relative;
+            top: 2px;
+            &:hover {
+                color: #555;
+            }
+        }
+        .delete-todo:hover {
+            color: red;
+        }
+    }
+}

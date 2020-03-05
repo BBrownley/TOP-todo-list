@@ -1,0 +1,50 @@
+.project {
+    padding: 10px 0 10px 10px;
+    width: 100%;
+    color: rgb(122, 122, 122);
+    display: flex;
+    justify-content: space-between;
+    &:hover {
+        cursor: pointer;
+        background-color: lighten(#36373F, 5%);
+        .project-edit {
+            display: inline-block;
+            color: #bbb;
+            &:hover {
+                color: #eee;
+            }
+        }
+        .project-options {
+            display: block;
+        }
+    }
+    &.selected {
+        background-color: #43454E;
+        border-left: 5px solid #D4DAF1;
+        color: #DFE3FC;
+    }
+    .project-count {
+        font-size: 12px;
+        margin-left: 2px;
+        &:before {
+            content: "(";
+        }
+        &:after {
+            content: ")";
+        }
+    }
+    .project-edit {
+        display: none;
+        float: right;
+    }
+    .project-options {
+        display: none;
+        color: #888;
+        & > i {
+            margin-right: 10px;
+            &:hover {
+                color: #ddd;
+            }   
+        }
+    }
+}
